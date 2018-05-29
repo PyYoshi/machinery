@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/RichardKnop/machinery/v1/config"
@@ -115,6 +116,16 @@ func (b *GCPPubSubBroker) Publish(signature *tasks.Signature) error {
 	}
 	if !topicExists {
 		return fmt.Errorf("topic does not exist, instead got %s", b.cnf.DefaultQueue)
+	}
+
+	// Check the ETA signature field, if it is set and it is in the future,
+	// delay the task
+	if signature.ETA != nil {
+		now := time.Now().UTC()
+
+		if signature.ETA.After(now) {
+			topic.PublishSettings.DelayThreshold = signature.ETA.Sub(now)
+		}
 	}
 
 	result := topic.Publish(ctx, &pubsub.Message{
