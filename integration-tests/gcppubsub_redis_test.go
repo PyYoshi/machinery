@@ -42,6 +42,9 @@ func createGCPPubSubTopicAndSubscription(cli *pubsub.Client) {
 			Topic:       topic,
 			AckDeadline: 10 * time.Second,
 		})
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
