@@ -32,7 +32,7 @@ services:
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
       AWS_REGION: 'us-west-2'
       GCPPUBSUB_URL: 'gcppubsub://example-project/test_queue'
-      PUBSUB_EMULATOR_HOST: 'localhost:8085'
+      PUBSUB_EMULATOR_HOST: 'gcppubsub:8085'
 
   rabbitmq:
     container_name: machinery_sut_rabbitmq
