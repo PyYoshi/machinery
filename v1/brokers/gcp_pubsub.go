@@ -19,8 +19,8 @@ import (
 type GCPPubSubBroker struct {
 	Broker
 
-	service *pubsub.Client
-	sub     *pubsub.Subscription
+	service          *pubsub.Client
+	subscriptionName string
 
 	processingWG sync.WaitGroup
 }
@@ -28,6 +28,7 @@ type GCPPubSubBroker struct {
 // NewGCPPubSubBroker creates new GCPPubSubBroker instance
 func NewGCPPubSubBroker(cnf *config.Config, projectID, subscriptionName string) (Interface, error) {
 	b := &GCPPubSubBroker{Broker: New(cnf)}
+	b.subscriptionName = subscriptionName
 
 	if cnf.GCPPubSub != nil && cnf.GCPPubSub.Client != nil {
 		b.service = cnf.GCPPubSub.Client
@@ -37,16 +38,9 @@ func NewGCPPubSubBroker(cnf *config.Config, projectID, subscriptionName string) 
 			return nil, err
 		}
 		b.service = pubsubClient
-	}
-
-	ctx := context.Background()
-	b.sub = b.service.Subscription(subscriptionName)
-	subscriptionExists, err := b.sub.Exists(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if !subscriptionExists {
-		return nil, fmt.Errorf("subscription does not exist, instead got %s", subscriptionName)
+		cnf.GCPPubSub = &config.GCPPubSubConfig{
+			Client: pubsubClient,
+		}
 	}
 
 	return b, nil
@@ -56,6 +50,15 @@ func NewGCPPubSubBroker(cnf *config.Config, projectID, subscriptionName string) 
 func (b *GCPPubSubBroker) StartConsuming(consumerTag string, concurrency int, taskProcessor TaskProcessor) (bool, error) {
 	b.startConsuming(consumerTag, taskProcessor)
 	deliveries := make(chan *pubsub.Message)
+
+	sub := b.service.Subscription(b.subscriptionName)
+	subscriptionExists, err := sub.Exists(context.Background())
+	if err != nil {
+		return false, err
+	}
+	if !subscriptionExists {
+		return false, fmt.Errorf("subscription does not exist, instead got %s", b.subscriptionName)
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -68,7 +71,7 @@ func (b *GCPPubSubBroker) StartConsuming(consumerTag string, concurrency int, ta
 				cancel()
 				return
 			default:
-				err := b.sub.Receive(ctx, func(_ctx context.Context, msg *pubsub.Message) {
+				err := sub.Receive(ctx, func(_ctx context.Context, msg *pubsub.Message) {
 					deliveries <- msg
 				})
 
