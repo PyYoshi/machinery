@@ -56,6 +56,14 @@ func BrokerFactory(cnf *config.Config) (brokers.Interface, error) {
 		return brokers.NewAWSSQSBroker(cnf), nil
 	}
 
+	if strings.HasPrefix(cnf.Broker, "gcppubsub://") {
+		projectID, subscriptionName, err := ParseGCPPubSubURL(cnf.Broker)
+		if err != nil {
+			return nil, err
+		}
+		return brokers.NewGCPPubSubBroker(cnf, projectID, subscriptionName)
+	}
+
 	return nil, fmt.Errorf("Factory failed with broker URL: %v", cnf.Broker)
 }
 
@@ -199,4 +207,26 @@ func ParseRedisSocketURL(url string) (path, password string, db int, err error) 
 	}
 
 	return
+}
+
+// ParseGCPPubSubURL ...
+// url: gcppubsub://project_id/subscription_name
+func ParseGCPPubSubURL(url string) (string, string, error) {
+	parts := strings.Split(url, "gcppubsub://")
+	if parts[0] != "" {
+		return "", "", errors.New("No gcppubsub scheme found")
+	}
+
+	if len(parts) != 2 {
+		return "", "", fmt.Errorf("gcppubsub scheme should be in format gcppubsub://project_id/subscription_name, instead got %s", url)
+	}
+
+	remainder := parts[1]
+
+	parts = strings.Split(remainder, "/")
+	if len(parts) == 2 {
+		return parts[0], parts[1], nil
+	}
+
+	return "", "", fmt.Errorf("gcppubsub scheme should be in format gcppubsub://project_id/subscription_name, instead got %s", url)
 }
