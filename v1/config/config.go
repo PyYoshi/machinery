@@ -35,6 +35,9 @@ var (
 			ConnectTimeout:         15,
 			DelayedTasksPollPeriod: 20,
 		},
+		GCPPubSub: &GCPPubSubConfig{
+			Client: nil,
+		},
 	}
 
 	reloadDelay = time.Second * 10
@@ -49,7 +52,7 @@ type Config struct {
 	AMQP            *AMQPConfig      `yaml:"amqp"`
 	SQS             *SQSConfig       `yaml:"sqs"`
 	Redis           *RedisConfig     `yaml:"redis"`
-	GCPPubSub       *GCPPubSubConfig `yaml:"gcp_pubsub"`
+	GCPPubSub       *GCPPubSubConfig `yaml:"-" ignored:"true"`
 	TLSConfig       *tls.Config
 	// NoUnixSignals - when set disables signal handling in machinery
 	NoUnixSignals bool            `yaml:"no_unix_signals" envconfig:"NO_UNIX_SIGNALS"`
