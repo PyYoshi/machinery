@@ -1,4 +1,4 @@
-package brokers
+package gcppubsub
 
 import (
 	"bytes"
@@ -10,14 +10,16 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
+	"github.com/RichardKnop/machinery/v1/brokers/iface"
+	"github.com/RichardKnop/machinery/v1/common"
 	"github.com/RichardKnop/machinery/v1/config"
 	"github.com/RichardKnop/machinery/v1/log"
 	"github.com/RichardKnop/machinery/v1/tasks"
 )
 
-// GCPPubSubBroker represents an Google Cloud Pub/Sub broker
-type GCPPubSubBroker struct {
-	Broker
+// Broker represents an Google Cloud Pub/Sub broker
+type Broker struct {
+	common.Broker
 
 	service          *pubsub.Client
 	subscriptionName string
@@ -25,9 +27,9 @@ type GCPPubSubBroker struct {
 	processingWG sync.WaitGroup
 }
 
-// NewGCPPubSubBroker creates new GCPPubSubBroker instance
-func NewGCPPubSubBroker(cnf *config.Config, projectID, subscriptionName string) (Interface, error) {
-	b := &GCPPubSubBroker{Broker: New(cnf)}
+// New creates new Broker instance
+func New(cnf *config.Config, projectID, subscriptionName string) (iface.Broker, error) {
+	b := &Broker{Broker: common.NewBroker(cnf)}
 	b.subscriptionName = subscriptionName
 
 	if cnf.GCPPubSub != nil && cnf.GCPPubSub.Client != nil {
@@ -47,8 +49,8 @@ func NewGCPPubSubBroker(cnf *config.Config, projectID, subscriptionName string) 
 }
 
 // StartConsuming enters a loop and waits for incoming messages
-func (b *GCPPubSubBroker) StartConsuming(consumerTag string, concurrency int, taskProcessor TaskProcessor) (bool, error) {
-	b.startConsuming(consumerTag, taskProcessor)
+func (b *Broker) StartConsuming(consumerTag string, concurrency int, taskProcessor iface.TaskProcessor) (bool, error) {
+	b.Broker.StartConsuming(consumerTag, concurrency, taskProcessor)
 	deliveries := make(chan *pubsub.Message)
 
 	sub := b.service.Subscription(b.subscriptionName)
@@ -67,7 +69,7 @@ func (b *GCPPubSubBroker) StartConsuming(consumerTag string, concurrency int, ta
 		for {
 			select {
 			// A way to stop this goroutine from b.StopConsuming
-			case <-b.stopChan:
+			case <-b.GetStopChan():
 				cancel()
 				return
 			default:
@@ -84,24 +86,24 @@ func (b *GCPPubSubBroker) StartConsuming(consumerTag string, concurrency int, ta
 	}()
 
 	if err := b.consume(deliveries, concurrency, taskProcessor); err != nil {
-		return b.retry, err
+		return b.GetRetry(), err
 	}
 
-	return b.retry, nil
+	return b.GetRetry(), nil
 }
 
 // StopConsuming quits the loop
-func (b *GCPPubSubBroker) StopConsuming() {
-	b.stopConsuming()
+func (b *Broker) StopConsuming() {
+	b.Broker.StopConsuming()
 
 	// Waiting for any tasks being processed to finish
 	b.processingWG.Wait()
 }
 
 // Publish places a new message on the default queue
-func (b *GCPPubSubBroker) Publish(signature *tasks.Signature) error {
+func (b *Broker) Publish(signature *tasks.Signature) error {
 	// Adjust routing key (this decides which queue the message will be published to)
-	AdjustRoutingKey(b, signature)
+	b.AdjustRoutingKey(signature)
 
 	msg, err := json.Marshal(signature)
 	if err != nil {
@@ -110,7 +112,8 @@ func (b *GCPPubSubBroker) Publish(signature *tasks.Signature) error {
 
 	ctx := context.Background()
 
-	topic := b.service.Topic(b.cnf.DefaultQueue)
+	defaultQueue := b.GetConfig().DefaultQueue
+	topic := b.service.Topic(defaultQueue)
 	defer topic.Stop()
 
 	topicExists, err := topic.Exists(ctx)
@@ -118,7 +121,7 @@ func (b *GCPPubSubBroker) Publish(signature *tasks.Signature) error {
 		return err
 	}
 	if !topicExists {
-		return fmt.Errorf("topic does not exist, instead got %s", b.cnf.DefaultQueue)
+		return fmt.Errorf("topic does not exist, instead got %s", defaultQueue)
 	}
 
 	// Check the ETA signature field, if it is set and it is in the future,
@@ -147,7 +150,7 @@ func (b *GCPPubSubBroker) Publish(signature *tasks.Signature) error {
 
 // consume takes delivered messages from the channel and manages a worker pool
 // to process tasks concurrently
-func (b *GCPPubSubBroker) consume(deliveries <-chan *pubsub.Message, concurrency int, taskProcessor TaskProcessor) error {
+func (b *Broker) consume(deliveries <-chan *pubsub.Message, concurrency int, taskProcessor iface.TaskProcessor) error {
 	pool := make(chan struct{}, concurrency)
 
 	// initialize worker pool with maxWorkers workers
@@ -185,14 +188,14 @@ func (b *GCPPubSubBroker) consume(deliveries <-chan *pubsub.Message, concurrency
 					pool <- struct{}{}
 				}
 			}()
-		case <-b.stopChan:
+		case <-b.GetStopChan():
 			return nil
 		}
 	}
 }
 
 // consumeOne processes a single message using TaskProcessor
-func (b *GCPPubSubBroker) consumeOne(delivery *pubsub.Message, taskProcessor TaskProcessor) error {
+func (b *Broker) consumeOne(delivery *pubsub.Message, taskProcessor iface.TaskProcessor) error {
 	if len(delivery.Data) == 0 {
 		delivery.Nack()
 		log.ERROR.Printf("received an empty message, the delivery was %v", delivery)
