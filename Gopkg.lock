@@ -18,6 +18,14 @@
   version = "v0.26.0"
 
 [[projects]]
+  digest = "1:dc27d9777febe9e63ab33a2cd15e31ce8d9463932d2472cc7097dc662dedb5ab"
+  name = "contrib.go.opencensus.io/exporter/stackdriver"
+  packages = ["propagation"]
+  pruneopts = "UT"
+  revision = "2b93072101d466aa4120b3c23c2e1b08af01541c"
+  version = "v0.6.0"
+
+[[projects]]
   branch = "master"
   digest = "1:e7607a6e2cdf80c5e532ccdde7df1e13959c4c2094cfb3dcdb0f98863ee36c1c"
   name = "github.com/RichardKnop/logging"
@@ -99,7 +107,7 @@
   version = "v1.33.0"
 
 [[projects]]
-  digest = "1:bc4fe35949eeb15fc1f3c87c5f6b041f939af038a1a541f1305790d9914f6344"
+  digest = "1:19e1717be26f549febea402e08b46db7919d164324a24ff67e0c81dfb11316b8"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -111,8 +119,8 @@
     "ptypes/timestamp",
   ]
   pruneopts = "UT"
-  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
-  version = "v1.1.0"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:38ec74012390146c45af1f92d46e5382b50531247929ff3a685d2b2be65155ac"
@@ -124,6 +132,14 @@
   pruneopts = "UT"
   revision = "9c11da706d9b7902c6da69c592f75637793fe121"
   version = "v2.0.0"
+
+[[projects]]
+  digest = "1:8f8811f9be822914c3a25c6a071e93beb4c805d7b026cbf298bc577bc1cc945b"
+  name = "github.com/google/uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
 
 [[projects]]
   digest = "1:e145e9710a10bc114a6d3e2738aadf8de146adaa031854ffdf7bbfe15da85e63"
@@ -170,14 +186,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ff6b0586c0621a76832cf783eee58cbb9d9795d2ce8acbc199a4131db11c42a9"
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
-
-[[projects]]
-  branch = "master"
   digest = "1:6014b4cd08abf98a4a6855e086837f21360362c2f59271aac3aad2b30b4f96f6"
   name = "github.com/streadway/amqp"
   packages = ["."]
@@ -205,10 +213,10 @@
   version = "v1.20.0"
 
 [[projects]]
-  digest = "1:b52fa5390c647456aef1fc8f093c077a6fff3465f30f095a0f8ce18ec2ac6e0c"
+  digest = "1:464a3be290af8d1254461cfbf8fdcd16c602fc28946b2bb5fad48d38dbc67e2c"
   name = "go.opencensus.io"
   packages = [
-    "exporter/stackdriver/propagation",
+    ".",
     "internal",
     "internal/tagencoding",
     "plugin/ocgrpc",
@@ -223,8 +231,8 @@
     "trace/propagation",
   ]
   pruneopts = "UT"
-  revision = "f7730ab009c252771b19074bd05217d054c0c93f"
-  version = "v0.10.0"
+  revision = "7b558058b7cc960667590e5413ef55157b06652e"
+  version = "v0.15.0"
 
 [[projects]]
   branch = "master"
@@ -245,7 +253,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1684f3f26d23b6fed3e9daa30e8f8424cb9012072e3621aaf7baefc96337d514"
+  digest = "1:f645667d687fc8bf228865a2c5455824ef05bad08841e673673ef2bb89ac5b90"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
@@ -255,7 +263,7 @@
     "jwt",
   ]
   pruneopts = "UT"
-  revision = "770e5ebd4ab27c4d70b0983674d138217f5e2c72"
+  revision = "d2e6202438beef2727060aa7cabdd924d92ebfd9"
 
 [[projects]]
   branch = "master"
@@ -267,6 +275,14 @@
   ]
   pruneopts = "UT"
   revision = "1d60e4601c6fd243af51cc01ddf169918a5407ca"
+
+[[projects]]
+  branch = "master"
+  digest = "1:4b487c782bc804d994e91adbd3d2a8a77a482671efd87b2fde0805adb01a39c0"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  pruneopts = "UT"
+  revision = "d99a578cf41bfccdeaf48b0845c823a4b8b0ad5e"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -293,7 +309,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b4e5ad5ec6a1ab0193939b265ea0844bf3ff600256862626511096d60e0e6467"
+  digest = "1:e9e388241f9f0f02000dddaeeb91153d53f0cd09dcec33879cc7e043a2e65d75"
   name = "google.golang.org/api"
   packages = [
     "googleapi/transport",
@@ -306,10 +322,10 @@
     "transport/http",
   ]
   pruneopts = "UT"
-  revision = "8180fb51da879301a8ddb7e2ee122ca5862da7f5"
+  revision = "087779f1d2c96357d4c45bd04c4d10d7b5f22736"
 
 [[projects]]
-  digest = "1:3aed0ef9f09da309b563842e8535d4f4be9610cdf2b561a2f0dc38500ba5e0f2"
+  digest = "1:26619fcd2452b4044174d26acd8b09c09dffee9a1c3a22d2383b873aa9a0131f"
   name = "google.golang.org/appengine"
   packages = [
     ".",
@@ -326,12 +342,12 @@
     "urlfetch",
   ]
   pruneopts = "UT"
-  revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
-  version = "v1.0.0"
+  revision = "b1f26356af11148e710935ed1ac8a7f5702c7612"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:94bda8ad0190a989ad7768ce0df06e4c384a8fa7bca1cf0ce63501a4b26fe51e"
+  digest = "1:c5af7a36fb725ca2f1b25c7870ee265f8f43ad29e088cc72e3078e3ca6b170e1"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
@@ -341,26 +357,29 @@
     "protobuf/field_mask",
   ]
   pruneopts = "UT"
-  revision = "694d95ba50e67b2e363f3483057db5d4910c18f9"
+  revision = "c66870c02cf823ceb633bcd05be3c7cda29976f4"
 
 [[projects]]
-  digest = "1:9262e56304bd086377826a74ced4dab3a24bc547903e582f388332bbb911279e"
+  digest = "1:f4fdb603068ae856b9eb05772787bf4966b1fabd3b074e3f840aab417bd992c3"
   name = "google.golang.org/grpc"
   packages = [
     ".",
     "balancer",
     "balancer/base",
     "balancer/roundrobin",
-    "channelz",
     "codes",
     "connectivity",
     "credentials",
     "credentials/oauth",
     "encoding",
     "encoding/proto",
-    "grpclb/grpc_lb_v1/messages",
     "grpclog",
     "internal",
+    "internal/backoff",
+    "internal/channelz",
+    "internal/envconfig",
+    "internal/grpcrand",
+    "internal/transport",
     "keepalive",
     "metadata",
     "naming",
@@ -371,11 +390,10 @@
     "stats",
     "status",
     "tap",
-    "transport",
   ]
   pruneopts = "UT"
-  revision = "41344da2231b913fa3d983840a57a6b1b7b631a1"
-  version = "v1.12.0"
+  revision = "32fb0ac620c32ba40a4626ddf94d90d12cce3455"
+  version = "v1.14.0"
 
 [[projects]]
   branch = "v2"
@@ -415,11 +433,11 @@
     "github.com/aws/aws-sdk-go/service/sqs/sqsiface",
     "github.com/bradfitz/gomemcache/memcache",
     "github.com/gomodule/redigo/redis",
+    "github.com/google/uuid",
     "github.com/kelseyhightower/envconfig",
     "github.com/opentracing/opentracing-go",
     "github.com/opentracing/opentracing-go/ext",
     "github.com/opentracing/opentracing-go/log",
-    "github.com/satori/go.uuid",
     "github.com/streadway/amqp",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/suite",

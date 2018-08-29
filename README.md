@@ -224,7 +224,7 @@ See [MongoDB docs](https://docs.mongodb.org/manual/reference/connection-string/)
 
 #### ResultsExpireIn
 
-How long to store task results for in seconds. Defaults to `3600000` (1 hour).
+How long to store task results for in seconds. Defaults to `3600` (1 hour).
 
 #### AMQP
 
@@ -314,7 +314,7 @@ if err != nil {
 }
 ```
 
-Each worker will only consume registered tasks. For each task on the queue the Worker.Process() method will will be run
+Each worker will only consume registered tasks. For each task on the queue the Worker.Process() method will be run
 in a goroutine. Use the second parameter of `server.NewWorker` to limit the number of concurrently running Worker.Process()
 calls (per worker). Example: 1 will serialize task execution while 0 makes the number of concurrently executed tasks unlimited (default).
 
@@ -707,7 +707,7 @@ signature2 := tasks.Signature{
 }
 
 group, _ := tasks.NewGroup(&signature1, &signature2)
-asyncResults, err := server.SendGroup(group)
+asyncResults, err := server.SendGroup(group, 0) //The second parameter specifies the number of concurrent sending tasks. 0 means unlimited.
 if err != nil {
   // failed to send the group
   // do something with the error
@@ -773,7 +773,7 @@ signature3 := tasks.Signature{
 
 group := tasks.NewGroup(&signature1, &signature2)
 chord, _ := tasks.NewChord(group, &signature3)
-chordAsyncResult, err := server.SendChord(chord)
+chordAsyncResult, err := server.SendChord(chord, 0) //The second parameter specifies the number of concurrent sending tasks. 0 means unlimited.
 if err != nil {
   // failed to send the chord
   // do something with the error
